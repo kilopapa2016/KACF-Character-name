@@ -6,6 +6,7 @@ import { ContestEntry } from '../types/contest';
 interface SubmissionFormProps {
   onSuccessSubmit: (newEntry: ContestEntry) => void;
   isExpired: boolean;
+  characterPhoto?: string;
 }
 
 const PRESET_KEYWORDS = [
@@ -17,7 +18,7 @@ const PRESET_KEYWORDS = [
   { label: '무비로 (Moviro)', meaning: '무비 + 미래로 달리는 라이더' },
 ];
 
-export const SubmissionForm: React.FC<SubmissionFormProps> = ({ onSuccessSubmit, isExpired }) => {
+export const SubmissionForm: React.FC<SubmissionFormProps> = ({ onSuccessSubmit, isExpired, characterPhoto }) => {
   const [characterName, setCharacterName] = useState('');
   const [submitterName, setSubmitterName] = useState('');
   const [contact, setContact] = useState('');
@@ -144,6 +145,31 @@ export const SubmissionForm: React.FC<SubmissionFormProps> = ({ onSuccessSubmit,
         {/* Form Container */}
         <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl relative overflow-hidden">
           
+          {/* Character Photo Mini Showcase */}
+          {characterPhoto && (
+            <div className="mb-8 p-4 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-850 flex flex-col sm:flex-row items-center gap-4">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 border-red-500/30 bg-slate-950 shadow-md">
+                <img
+                  src={characterPhoto}
+                  alt="KACF 캐릭터"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="text-center sm:text-left flex-1 min-w-0">
+                <span className="text-xs font-mono text-red-400 font-semibold tracking-wider block">
+                  KACF OFFICIAL CHARACTER
+                </span>
+                <div className="text-base sm:text-lg font-black text-white mt-0.5">
+                  "주인님, 오늘도 열일 Go! 🛵"
+                </div>
+                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                  대한민국인공지능영화제를 대표할 이 씩씩한 소년에게 가장 어울리는 멋진 이름을 선물해주세요.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Quick inspiration chips */}
           <div className="mb-8 p-4 rounded-2xl bg-slate-950/70 border border-slate-800/80">
             <div className="flex items-center gap-2 text-xs font-medium text-slate-400 mb-2.5">

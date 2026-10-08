@@ -1,17 +1,19 @@
 import React from 'react';
-import { CheckCircle2, X, Sparkles, ArrowRight, Copy, Check } from 'lucide-react';
+import { CheckCircle2, X, ArrowRight, Copy, Check } from 'lucide-react';
 import { ContestEntry } from '../types/contest';
 
 interface SubmissionSuccessModalProps {
   entry: ContestEntry | null;
   onClose: () => void;
   onViewInList: () => void;
+  characterPhoto?: string;
 }
 
 export const SubmissionSuccessModal: React.FC<SubmissionSuccessModalProps> = ({
   entry,
   onClose,
-  onViewInList
+  onViewInList,
+  characterPhoto
 }) => {
   const [copied, setCopied] = React.useState(false);
 
@@ -62,41 +64,54 @@ export const SubmissionSuccessModal: React.FC<SubmissionSuccessModalProps> = ({
             <div className="text-xs font-mono text-red-400 font-bold">{entry.receiptNo}</div>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <span className="text-xs text-slate-400 block">제안하신 캐릭터 이름</span>
-              <span className="text-xl sm:text-2xl font-black text-white block mt-0.5 text-red-400">
-                {entry.characterName}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-800/80">
-              <div>
-                <span className="text-slate-400 block">작명자 (응모자)</span>
-                <span className="font-semibold text-white mt-0.5 block">{entry.submitterName} 님</span>
-              </div>
-              <div>
-                <span className="text-slate-400 block">접수 일시</span>
-                <span className="font-mono text-slate-300 mt-0.5 block">
-                  {new Date(entry.createdAt).toLocaleDateString('ko-KR', {
-                    month: 'numeric',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                </span>
-              </div>
-            </div>
-
-            {entry.meaning && (
-              <div className="text-xs pt-2 border-t border-slate-800/80">
-                <span className="text-slate-400 block mb-1">작명 이유 & 의미</span>
-                <p className="text-slate-300 bg-slate-900 p-2.5 rounded-lg leading-relaxed">
-                  {entry.meaning}
-                </p>
+          <div className="flex gap-4 items-center">
+            {characterPhoto && (
+              <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-slate-750 bg-slate-900">
+                <img
+                  src={characterPhoto}
+                  alt="KACF 캐릭터"
+                  referrerPolicy="no-referrer"
+                  className="w-full h-full object-cover"
+                />
               </div>
             )}
+            <div className="flex-1 min-w-0">
+              <span className="text-xs text-slate-400 block">제안하신 캐릭터 이름</span>
+              <span className="text-xl sm:text-2xl font-black text-red-400 truncate block mt-0.5">
+                {entry.characterName}
+              </span>
+              <span className="text-xs text-slate-300 block mt-0.5">
+                작명자: <strong>{entry.submitterName}</strong> 님
+              </span>
+            </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-3 text-xs pt-2 border-t border-slate-800/80">
+            <div>
+              <span className="text-slate-400 block">접수 번호</span>
+              <span className="font-mono text-white mt-0.5 block">{entry.receiptNo}</span>
+            </div>
+            <div>
+              <span className="text-slate-400 block">접수 일시</span>
+              <span className="font-mono text-slate-300 mt-0.5 block">
+                {new Date(entry.createdAt).toLocaleDateString('ko-KR', {
+                  month: 'numeric',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </span>
+            </div>
+          </div>
+
+          {entry.meaning && (
+            <div className="text-xs pt-2 border-t border-slate-800/80">
+              <span className="text-slate-400 block mb-1">작명 이유 & 의미</span>
+              <p className="text-slate-300 bg-slate-900 p-2.5 rounded-lg leading-relaxed line-clamp-3">
+                {entry.meaning}
+              </p>
+            </div>
+          )}
 
           <div className="pt-2 text-[11px] text-slate-400 flex items-center justify-between">
             <span>마감 기한: 10월 10일 23:59</span>

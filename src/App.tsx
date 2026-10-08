@@ -18,11 +18,24 @@ import {
 import { INITIAL_SUBMISSIONS } from './data/initialEntries';
 import { useCountdown } from './utils/useCountdown';
 
+const DEFAULT_CHARACTER_PHOTO = '/src/assets/images/kacf_character_master_go_1791421099930.jpg';
+const PHOTO_STORAGE_KEY = 'kacf_custom_character_photo';
+
 export default function App() {
   const [entries, setEntries] = useState<ContestEntry[]>([]);
   const [likedIds, setLikedIds] = useState<string[]>([]);
   const [adminOpen, setAdminOpen] = useState(false);
   const [successEntry, setSuccessEntry] = useState<ContestEntry | null>(null);
+
+  const [characterPhoto, setCharacterPhoto] = useState<string>(() => {
+    try {
+      return localStorage.getItem(PHOTO_STORAGE_KEY) || DEFAULT_CHARACTER_PHOTO;
+    } catch {
+      return DEFAULT_CHARACTER_PHOTO;
+    }
+  });
+
+  const isCustomPhoto = characterPhoto !== DEFAULT_CHARACTER_PHOTO;
 
   const countdown = useCountdown(CONTEST_DEADLINE);
 
@@ -31,6 +44,24 @@ export default function App() {
     setEntries(getStoredSubmissions());
     setLikedIds(getLikedIds());
   }, []);
+
+  const handleChangeCharacterPhoto = (newPhotoUrl: string) => {
+    setCharacterPhoto(newPhotoUrl);
+    try {
+      localStorage.setItem(PHOTO_STORAGE_KEY, newPhotoUrl);
+    } catch (e) {
+      console.warn('Could not save photo to localStorage', e);
+    }
+  };
+
+  const handleResetCharacterPhoto = () => {
+    setCharacterPhoto(DEFAULT_CHARACTER_PHOTO);
+    try {
+      localStorage.removeItem(PHOTO_STORAGE_KEY);
+    } catch (e) {
+      console.warn('Could not remove photo from localStorage', e);
+    }
+  };
 
   const handleSuccessSubmit = (newEntryData: ContestEntry) => {
     const saved = saveSubmission(newEntryData);
@@ -76,6 +107,10 @@ export default function App() {
         <HeroSection
           countdown={countdown}
           totalSubmissions={entries.length}
+          characterPhoto={characterPhoto}
+          onChangePhoto={handleChangeCharacterPhoto}
+          onResetPhoto={handleResetCharacterPhoto}
+          isCustomPhoto={isCustomPhoto}
         />
 
         {/* Character Story & Traits Profile */}
@@ -85,6 +120,7 @@ export default function App() {
         <SubmissionForm
           onSuccessSubmit={handleSuccessSubmit}
           isExpired={countdown.isExpired}
+          characterPhoto={characterPhoto}
         />
 
         {/* Contest Rules, Guidelines & Prizes */}
@@ -106,6 +142,7 @@ export default function App() {
         entry={successEntry}
         onClose={() => setSuccessEntry(null)}
         onViewInList={handleScrollToGallery}
+        characterPhoto={characterPhoto}
       />
 
       {/* Organizer Admin / CSV Export Modal */}

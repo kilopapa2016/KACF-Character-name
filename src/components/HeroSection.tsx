@@ -1,13 +1,40 @@
-import React from 'react';
-import { Clock, Sparkles, ArrowRight, Award, Flame } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Clock, Sparkles, ArrowRight, Award, Flame, Upload, RotateCcw, Image as ImageIcon } from 'lucide-react';
 import { CountdownResult } from '../utils/useCountdown';
 
 interface HeroSectionProps {
   countdown: CountdownResult;
   totalSubmissions: number;
+  characterPhoto: string;
+  onChangePhoto: (newPhotoUrl: string) => void;
+  onResetPhoto: () => void;
+  isCustomPhoto: boolean;
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ countdown, totalSubmissions }) => {
+export const HeroSection: React.FC<HeroSectionProps> = ({
+  countdown,
+  totalSubmissions,
+  characterPhoto,
+  onChangePhoto,
+  onResetPhoto,
+  isCustomPhoto
+}) => {
+  const [bubbleQuote, setBubbleQuote] = useState<'master' | 'everyone'>('master');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          onChangePhoto(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 border-b border-slate-800/80">
       {/* Background glow effects */}
@@ -128,26 +155,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ countdown, totalSubmis
           </div>
 
           {/* Right Column: Character Showcase Visual */}
-          <div className="lg:col-span-5 flex justify-center">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center">
             <div className="relative w-full max-w-md">
               {/* Comic speech bubble with character quote */}
-              <div className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 z-20 bg-white text-slate-900 font-black px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-slate-900 rotate-[-5deg] transform hover:scale-105 transition-transform cursor-default">
+              <button
+                type="button"
+                onClick={() => setBubbleQuote(bubbleQuote === 'master' ? 'everyone' : 'master')}
+                title="클릭하여 대사 전환"
+                className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 z-20 bg-white text-slate-900 font-black px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl sm:rounded-3xl shadow-2xl border-2 border-slate-900 rotate-[-5deg] transform hover:scale-105 active:scale-95 transition-transform text-left cursor-pointer"
+              >
                 <div className="text-base sm:text-lg tracking-tight leading-tight">
-                  여러분, 오늘도 <br />
+                  {bubbleQuote === 'master' ? '주인님' : '여러분'}, 오늘도 <br />
                   <span className="text-red-600 text-lg sm:text-xl font-black">열일 Go! 🛵</span>
                 </div>
                 {/* Speech bubble tail pointer */}
                 <div className="absolute -bottom-2.5 right-6 w-4 h-4 bg-white border-r-2 border-b-2 border-slate-900 rotate-45 transform" />
-              </div>
+              </button>
 
               {/* Character Card Frame */}
               <div className="relative rounded-3xl overflow-hidden border-2 border-slate-700/80 bg-gradient-to-b from-slate-800 to-slate-950 shadow-2xl p-2.5">
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-900">
+                <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-900 group">
                   <img
-                    src="/src/assets/images/kacf_character_hero_1791420205687.jpg"
+                    src={characterPhoto}
                     alt="대한민국인공지능영화제(KACF) 공식 캐릭터 마스코트 소년"
                     referrerPolicy="no-referrer"
-                    className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                   />
                   
                   {/* Subtle gradient scrim at bottom for text contrast */}
@@ -160,6 +192,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ countdown, totalSubmis
                       <span>KACF OFFICIAL MASCOT</span>
                     </div>
                     <span className="text-slate-300 font-mono">2026.10.10 마감</span>
+                  </div>
+
+                  {/* Quick Change Photo Overlay on Hover / Action */}
+                  <div className="absolute top-3 right-3 opacity-90 hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      title="사진 파일 직접 선택 및 교체"
+                      className="px-2.5 py-1.5 rounded-lg bg-black/60 hover:bg-black/80 backdrop-blur-md text-white border border-white/20 text-[11px] font-medium flex items-center gap-1.5 transition-colors shadow-lg"
+                    >
+                      <Upload className="w-3 h-3 text-red-400" />
+                      <span>사진 교체</span>
+                    </button>
                   </div>
                 </div>
 
@@ -178,6 +223,36 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ countdown, totalSubmis
                     <span className="text-slate-400 text-[11px]">미래를 향한 질주</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Photo Upload helper bar */}
+              <div className="mt-3 flex items-center justify-between px-2 text-xs text-slate-400">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="hover:text-white flex items-center gap-1 text-slate-400 transition-colors"
+                >
+                  <ImageIcon className="w-3.5 h-3.5 text-slate-400" />
+                  <span>내 기기에서 캐릭터 사진 적용하기</span>
+                </button>
+
+                {isCustomPhoto && (
+                  <button
+                    type="button"
+                    onClick={onResetPhoto}
+                    className="hover:text-red-400 flex items-center gap-1 text-slate-400 transition-colors"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    <span>기본 사진으로 복원</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
